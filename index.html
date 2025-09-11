@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MuseCraft Studio</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>MuseCraft Studio</h1>
+            <p>AI 音樂與虛擬舞蹈創作</p>
+        </header>
+
+        <nav class="tab-menu">
+            <button class="tab-button active" data-tab="music">AI 音樂創作</button>
+            <button class="tab-button" data-tab="dance">AI 虛擬舞蹈</button>
+        </nav>
+
+        <main>
+            <section id="music-tab" class="content-tab active">
+                <h2>AI 音樂創作</h2>
+                <div class="input-area">
+                    <label for="music-upload">上傳音樂檔案 (.mp3, .wav...)</label>
+                    <input type="file" id="music-upload" accept="audio/*">
+                    <button id="generate-music-btn">生成類似旋律</button>
+                </div>
+                <div id="music-loading" class="loading-message" style="display: none;">
+                    生成中，請稍候...
+                </div>
+                <div id="music-results" class="results-area">
+                    </div>
+            </section>
+
+            <section id="dance-tab" class="content-tab">
+                <h2>AI 虛擬舞蹈</h2>
+                <div class="input-area">
+                    <label for="dance-upload">上傳音樂檔案 (.mp3, .wav...)</label>
+                    <input type="file" id="dance-upload" accept="audio/*">
+                    <label for="dance-style">選擇舞蹈風格</label>
+                    <select id="dance-style">
+                        <option value="hip-hop">街舞</option>
+                        <option value="ballet">芭蕾</option>
+                        <option value="modern">現代舞</option>
+                    </select>
+                    <button id="generate-dance-btn">生成舞蹈</button>
+                </div>
+                <div id="dance-loading" class="loading-message" style="display: none;">
+                    生成中，請稍候...
+                </div>
+                <div id="dance-results" class="results-area">
+                    <p>3D 渲染區</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
