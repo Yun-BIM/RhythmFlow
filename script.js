@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             try {
                 // 替換成你的 Cloudflare Worker URL
-                const workerUrl = 'YOUR_CLOUDFLARE_WORKER_URL/generate-music';
+                const workerUrl = 'rhythmflow-api.anna-622.workers.dev/generate-music';
                 
                 // 呼叫後端 API
                 const response = await fetch(workerUrl, {
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             try {
                 // 替換成你的 Cloudflare Worker URL
-                const workerUrl = 'YOUR_CLOUDFLARE_WORKER_URL/generate-dance';
+                const workerUrl = 'rhythmflow-api.anna-622.workers.dev/generate-dance';
                 
                 const response = await fetch(workerUrl, {
                     method: 'POST',
