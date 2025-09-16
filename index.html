@@ -24,13 +24,26 @@
                 <div class="input-area">
                     <label for="music-upload">上傳音樂檔案 (.mp3, .wav...)</label>
                     <input type="file" id="music-upload" accept="audio/*">
-                    <button id="generate-music-btn">生成類似旋律</button>
+                    <div class="button-group">
+                        <button id="analyze-music-btn">分析音樂結構</button>
+                        <button id="generate-music-btn">生成類似旋律</button>
+                    </div>
                 </div>
                 <div id="music-loading" class="loading-message" style="display: none;">
-                    生成中，請稍候...
+                    處理中，請稍候...
                 </div>
-                <div id="music-results" class="results-area">
-                    </div>
+                
+                <div id="analysis-results" class="results-area" style="display: none;">
+                    <h3>音樂結構分析</h3>
+                    <div id="analysis-content">
+                        </div>
+                </div>
+                
+                <div id="music-results" class="results-area" style="display: none;">
+                    <h3>生成的音樂旋律</h3>
+                    <div id="generated-content">
+                        </div>
+                </div>
             </section>
 
             <section id="dance-tab" class="content-tab">
@@ -49,8 +62,10 @@
                 <div id="dance-loading" class="loading-message" style="display: none;">
                     生成中，請稍候...
                 </div>
-                <div id="dance-results" class="results-area">
-                    <p>3D 渲染區</p>
+                <div id="dance-results" class="results-area" style="display: none;">
+                    <h3>虛擬人物舞蹈</h3>
+                    <div id="dance-content">
+                        </div>
                 </div>
             </section>
         </main>
