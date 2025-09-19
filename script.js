@@ -25,57 +25,83 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 處理「分析音樂結構」按鈕點擊事件
-    analyzeMusicBtn.addEventListener('click', async () => {
-        const file = musicUpload.files[0];
-        if (!file) {
-            alert('請先上傳一個音樂檔案！');
-            return;
+analyzeMusicBtn.addEventListener('click', async () => {
+    const file = musicUpload.files[0];
+    if (!file) {
+        alert('請先上傳一個音樂檔案！');
+        return;
+    }
+
+    musicLoading.style.display = 'block';
+    analyzeMusicBtn.disabled = true;
+    generateMusicBtn.disabled = true;
+    analysisResultsDiv.style.display = 'none';
+    musicResultsDiv.style.display = 'none';
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = async () => {
+        const base64Data = reader.result.split(',')[1];
+        
+        try {
+            // 呼叫 Cloudflare Worker，得到 prediction ID
+            const workerUrl = 'YOUR_CLOUDFLARE_WORKER_URL/analyze-music';
+            
+            const response = await fetch(workerUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ music_file: base64Data })
+            });
+
+            if (!response.ok) throw new Error('音樂分析失敗');
+            
+            const resultData = await response.json();
+            const predictionId = resultData.id;
+
+            // 輪詢 Replicate API，直到結果完成
+            const finalResult = await pollForReplicateResult(predictionId);
+            
+            analysisContentDiv.innerHTML = `
+                <p><strong>拍速 (BPM)：</strong> ${finalResult.bpm}</p>
+                <p><strong>小節總數：</strong> ${finalResult.bar_count}</p>
+                <p><strong>音樂結構：</strong></p>
+                <ul>
+                    ${finalResult.structure.map(s => `<li><strong>${s.label}:</strong> ${s.duration} 秒</li>`).join('')}
+                </ul>
+            `;
+            analysisResultsDiv.style.display = 'block';
+
+        } catch (error) {
+            console.error('API 呼叫失敗:', error);
+            alert(`發生錯誤：${error.message}`);
+        } finally {
+            musicLoading.style.display = 'none';
+            analyzeMusicBtn.disabled = false;
+            generateMusicBtn.disabled = false;
+        }
+    };
+});
+
+// 新增一個函式來輪詢 Replicate 的結果
+async function pollForReplicateResult(predictionId) {
+    const workerUrl = 'YOUR_CLOUDFLARE_WORKER_URL/poll-result';
+    
+    while (true) {
+        const response = await fetch(`${workerUrl}?id=${predictionId}`);
+        const result = await response.json();
+        
+        if (result.status === 'succeeded') {
+            return result.output;
+        }
+        
+        if (result.status === 'failed' || result.status === 'canceled') {
+            throw new Error('模型運算失敗或取消');
         }
 
-        musicLoading.style.display = 'block';
-        analyzeMusicBtn.disabled = true;
-        generateMusicBtn.disabled = true;
-        analysisResultsDiv.style.display = 'none';
-        musicResultsDiv.style.display = 'none';
-
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onloadend = async () => {
-            const base64Data = reader.result.split(',')[1];
-            
-            try {
-                const workerUrl = 'rhythmflow-api.anna-622.workers.dev/analyze-music'; // 注意路徑
-                
-                const response = await fetch(workerUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ music_file: base64Data })
-                });
-
-                if (!response.ok) throw new Error('音樂分析失敗');
-                
-                const analysisData = await response.json();
-                
-                analysisContentDiv.innerHTML = `
-                    <p><strong>拍速 (BPM)：</strong> ${analysisData.bpm}</p>
-                    <p><strong>小節總數：</strong> ${analysisData.bar_count}</p>
-                    <p><strong>音樂結構：</strong></p>
-                    <ul>
-                        ${analysisData.structure.map(s => `<li><strong>${s.label}:</strong> ${s.duration} 秒</li>`).join('')}
-                    </ul>
-                `;
-                analysisResultsDiv.style.display = 'block';
-
-            } catch (error) {
-                console.error('API 呼叫失敗:', error);
-                alert(`發生錯誤：${error.message}`);
-            } finally {
-                musicLoading.style.display = 'none';
-                analyzeMusicBtn.disabled = false;
-                generateMusicBtn.disabled = false;
-            }
-        };
-    });
+        // 等待 2 秒後再輪詢
+        await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+}
 
     // 處理「生成類似旋律」按鈕點擊事件
     generateMusicBtn.addEventListener('click', async () => {
